@@ -1,4 +1,4 @@
 # bitcoin-table
-Bitcoin rate table in Javascript
+Bitcoin rates table in Javascript.
 
 
