@@ -15,6 +15,9 @@ You can access it at:
 http://localhost:1234
 ```
 
+### Live Demo
+This app is running at glitch.com on the following address: https://chrome-aster.glitch.me/
+
 ### API Source
  * [Coindesk API](https://www.coindesk.com/api)
 
