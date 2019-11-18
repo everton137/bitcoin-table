@@ -37,8 +37,13 @@ async function getCurBitcoin() {
 // update the row with the current value
 async function updateCurRow() {
     const table = document.getElementById("bitcoinTable");
-    const curData = await getCurBitcoin();
-    table.rows[1].cells[1].innerHTML = curData.USD.rate_float;
+    try {
+        const curData = await getCurBitcoin();
+        table.rows[1].cells[1].innerHTML = curData.USD.rate_float;
+    } catch (error) {
+        console.log(error);
+    }
+
 }
 
 // populate the table
@@ -52,7 +57,7 @@ async function populateTable() {
             const row = table.insertRow(1),
                 cell1 = row.insertCell(0),
                 cell2 = row.insertCell(1);
-            cell1.innerHTML = moment(key,'YYYY-MM-DD').format('DD MMM YYYY');
+            cell1.innerHTML = moment(key, 'YYYY-MM-DD').format('DD MMM YYYY');
             cell2.innerHTML = histData[key];
             row.className = "mdc-data-table__row";
             cell1.className = "mdc-data-table__cell";
