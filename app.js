@@ -7,73 +7,41 @@ import * as config from "./config";
 const today = moment(),
     yesterday = moment().subtract(1, "days"),
     firstDay = moment().subtract(config.histDays, "days");
+const table = document.getElementById("bitcoinTable");
 
-// parse historical bitcoin data for the specified days range
-async function getHistBitcoin() {
-    const bitcoinUrl = `${config.corsApiUrl}https://api.coindesk.com/v1/bpi/historical/close.json?start=${firstDay.format("YYYY-MM-DD")}&end=${yesterday.format("YYYY-MM-DD")}`;
-
+// Getting the historical and current data
+async function getBitcoinData() {
+    let histUrl = `${config.corsApiUrl}https://api.coindesk.com/v1/bpi/historical/close.json?start=${firstDay.format("YYYY-MM-DD")}&end=${yesterday.format("YYYY-MM-DD")}`,
+        curUrl = `${config.corsApiUrl}https://api.coindesk.com/v1/bpi/currentprice/USD.json`;
     try {
-        const bitcoinReq = await axios.get(bitcoinUrl);
-        const bitcoinData = bitcoinReq.data;
-        return bitcoinData.bpi;
+        let bitcoinResp = await axios.all([axios.get(histUrl), axios.get(curUrl)]);
+        const histData = bitcoinResp[0].data.bpi,
+            curData = bitcoinResp[1].data.bpi.USD.rate_float;
+        return { hist: histData, cur: curData };
     } catch (error) {
         console.log(error);
     }
 }
 
-// parse bitcoin data for the current day
-async function getCurBitcoin() {
-    const bitcoinUrl = `${config.corsApiUrl}https://api.coindesk.com/v1/bpi/currentprice/USD.json`;
-
-    try {
-        const bitcoinReq = await axios.get(bitcoinUrl);
-        const bitcoinData = bitcoinReq.data;
-        return bitcoinData.bpi;
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-// update the row with the current value
-async function updateCurRow() {
-    const table = document.getElementById("bitcoinTable");
-    try {
-        const curData = await getCurBitcoin();
-        table.rows[1].cells[1].innerHTML = curData.USD.rate_float;
-    } catch (error) {
-        console.log(error);
-    }
-
-}
-
-// populate the table
+// Populating the table
 async function populateTable() {
-    const table = document.getElementById("bitcoinTable");
-
     try {
-        const histData = await getHistBitcoin();
-
-        for (var key of Object.keys(histData)) {
+        const data = await getBitcoinData();
+        for (var key of Object.keys(data.hist)) {
             const row = table.insertRow(1),
                 cell1 = row.insertCell(0),
                 cell2 = row.insertCell(1);
             cell1.innerHTML = moment(key, 'YYYY-MM-DD').format('DD MMM YYYY');
-            cell2.innerHTML = histData[key];
+            cell2.innerHTML = data.hist[key];
             row.className = "mdc-data-table__row";
             cell1.className = "mdc-data-table__cell";
             cell2.className = "mdc-data-table__cell mdc-data-table__cell--numeric";
         }
-    } catch (error) {
-        console.log(error);
-    }
-
-    try {
-        const curData = await getCurBitcoin();
         const row = table.insertRow(1),
             cell1 = row.insertCell(0),
             cell2 = row.insertCell(1);
-        cell1.innerHTML = moment(today).format('DD MMM YYYY');
-        cell2.innerHTML = curData.USD.rate_float;
+        cell1.innerHTML = today.format('DD MMM YYYY');
+        cell2.innerHTML = data.cur;
         row.className = "mdc-data-table__row";
         cell1.className = "mdc-data-table__cell";
         cell2.className = "mdc-data-table__cell mdc-data-table__cell--numeric";
@@ -82,7 +50,18 @@ async function populateTable() {
     }
 }
 
-populateTable();
+// Update the table with the current value. In case the previous day changed, updates the whole table
+async function updateTable() {
+    try {
+        const data = await getBitcoinData();
+        table.rows[1].cells[1].innerHTML = data.cur;
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
 
-// update the row with the current data every 5 seconds
-setInterval(updateCurRow, 5000);
+// Invoke function to populate the table
+populateTable();
+// Update the table every 5 seconds
+setInterval(updateTable, 5000);
