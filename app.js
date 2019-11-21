@@ -27,7 +27,7 @@ async function getBitcoinData() {
 async function populateTable() {
     try {
         const data = await getBitcoinData();
-        for (var key of Object.keys(data.hist)) {
+        for (let key of Object.keys(data.hist)) {
             const row = table.insertRow(1),
                 cell1 = row.insertCell(0),
                 cell2 = row.insertCell(1);
@@ -50,11 +50,18 @@ async function populateTable() {
     }
 }
 
-// Update the table with the current value. In case the previous day changed, updates the whole table
+// Update the table with the current value
 async function updateTable() {
     try {
         const data = await getBitcoinData();
         table.rows[1].cells[1].innerHTML = data.cur;
+        // In case the previous day changes, update the table with the historical data
+        if (table.rows[2].cells[0].innerHTML !== yesterday.format('DD MMM YYYY')) {
+            count++;
+            let histRates = Object.values(data.hist).reverse();
+            for (let i = 0; i < histRates.length; i++) {
+                table.rows[i + 2].cells[1].innerHTML = histRates[i];
+            }
         }
     } catch (error) {
         console.log(error);
