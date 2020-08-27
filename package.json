@@ -15,6 +15,7 @@
     "@material/data-table": "^4.0.0",
     "axios": "^0.19.2",
     "core-js": "^3.6.5",
+    "dot-prop": "^5.2.0",
     "material": "^0.4.3",
     "moment": "^2.27.0",
     "regenerator-runtime": "^0.13.7"
