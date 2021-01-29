@@ -13,7 +13,7 @@
   "dependencies": {
     "@babel/core": "^7.11.4",
     "@material/data-table": "^4.0.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "dot-prop": "^5.2.0",
     "material": "^0.4.3",
